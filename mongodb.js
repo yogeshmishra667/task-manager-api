@@ -22,12 +22,40 @@ MongoClient.connect(
     const db = client.db(databaseName); //use for access specific database
 
     /* **************read and find data at collections************** */
-    db.collection("users").findOne({ name: "yogi" }, (error, result) => {
-      if (error) {
-        return console.log("unable to users");
-      }
-      console.log(result);
-    });
+
+    // db.collection("users").findOne({ name: "yogi" }, (error, result) => {
+    //   if (error) {
+    //     return console.log("unable to users");
+    //   }
+    //   console.log(result);
+    // });
+
+    // db.collection("users").find({ name: "yogi" }).toArray((error, documents) => {
+    //     if (error) {
+    //       return console.log("unable to fetch users");
+    //     }
+    //     console.log(documents);
+    //   });
+
+    //challenge
+    // db.collection("tasks").findOne(
+    //   new ObjectID("5e8cc9383514482bc079caa4"),
+    //   (error, desp) => {
+    //     if (error) {
+    //       return console.log("unable to fetch users");
+    //     }
+    //     console.log(desp);
+    //   }
+    // );
+
+    db.collection("tasks")
+      .find({ completed: true })
+      .toArray((error, documents) => {
+        if (error) {
+          return console.log("unable to find records");
+        }
+        console.log(documents);
+      });
 
     /* ****************** *insert data in collection***************** */
 

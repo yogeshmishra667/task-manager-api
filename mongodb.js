@@ -21,92 +21,47 @@ MongoClient.connect(
     }
     const db = client.db(databaseName); //use for access specific database
 
-    /* **************read and find data at collections************** */
-
-    // db.collection("users").findOne({ name: "yogi" }, (error, result) => {
-    //   if (error) {
-    //     return console.log("unable to users");
-    //   }
-    //   console.log(result);
-    // });
-
-    // db.collection("users").find({ name: "yogi" }).toArray((error, documents) => {
-    //     if (error) {
-    //       return console.log("unable to fetch users");
+    //update field at collection
+    // db.collection("users")
+    //   .updateOne(
+    //     { _id: new ObjectID("5e8cc47491cfae08181fcc39") },
+    //     {
+    //       $set: {
+    //         name: "dev",
+    //       },
     //     }
-    //     console.log(documents);
+    //   )
+    //   .then((result) => {
+    //     console.log(result);
+    //   })
+    //   .catch((err) => {
+    //     console.log(error);
     //   });
 
-    //challenge
-    // db.collection("tasks").findOne(
-    //   new ObjectID("5e8cc9383514482bc079caa4"),
-    //   (error, desp) => {
-    //     if (error) {
-    //       return console.log("unable to fetch users");
+    // db.collection("tasks")
+    //   .updateMany(
+    //     { completed: false },
+    //     {
+    //       $set: {
+    //         completed: true,
+    //       },
     //     }
-    //     console.log(desp);
-    //   }
-    // );
-
-    db.collection("tasks")
-      .find({ completed: true })
-      .toArray((error, documents) => {
-        if (error) {
-          return console.log("unable to find records");
-        }
-        console.log(documents);
+    //   )
+    //   .then((result) => {
+    //     console.log(`tasks completed ${result}`);
+    //   })
+    //   .catch((err) => {
+    //     console.log(`something went to wrong ${error}`);
+    //   });
+    db.collection("users")
+      .deleteOne({
+        _id: new ObjectID("5e8cc9383514482bc079caa2"),
+      })
+      .then((result) => {
+        console.log(result.result);
+      })
+      .catch((err) => {
+        console.log(error);
       });
-
-    /* ****************** *insert data in collection***************** */
-
-    // db.collection('users').insertOne({
-    //   name:'yogi',
-    //   age:20
-    // },(error, result) => {
-    // if (error) {
-    //   return console.log('data not inserted')
-    // }
-    // console.log(result.ops)
-
-    // db.collection("users").insertMany(
-    //   [
-    //     {
-    //       name: "yogesh mishra",
-    //       age: 21,
-    //     },
-    //     {
-    //       name: "mongodb",
-    //       age: 11,
-    //     },
-    //   ],
-    //   (error, result) => {
-    //     if (error) {
-    //       return console.log("users not inserted");
-    //     }
-    //     console.log(result.ops);
-    //   }
-    // );
-    // db.collection("tasks").insertMany(
-    //   [
-    //     {
-    //       description: "love with mongodb",
-    //       completed: false,
-    //     },
-    //     {
-    //       description: "read think and grow rich",
-    //       completed: true,
-    //     },
-    //     {
-    //       description: "start mongodb",
-    //       completed: true,
-    //     },
-    //   ],
-    //   (error, result) => {
-    //     if (error) {
-    //       return console.log("unable to inserted data");
-    //     }
-    //     console.log(result.ops);
-    //   }
-    // );
   }
 );

@@ -9,6 +9,8 @@
   "author": "yogesh mishra",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^3.5.5"
+    "mongodb": "^3.5.5",
+    "mongoose": "^5.9.7",
+    "validator": "^13.0.0"
   }
 }

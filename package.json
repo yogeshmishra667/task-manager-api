@@ -4,13 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "author": "yogesh mishra",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.17.1",
     "mongodb": "^3.5.5",
     "mongoose": "^5.9.7",
     "validator": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
   }
 }

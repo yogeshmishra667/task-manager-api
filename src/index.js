@@ -94,10 +94,10 @@ app.patch("/users/:id", async (req, res) => {
 app.delete("/users/:id", async (req, res) => {
   try {
     const users = await User.findByIdAndDelete(req.params.id);
-    res.send("user deleted successfully..!");
     if (!users) {
       return res.status(404).send("user not found");
     }
+    res.send("user deleted successfully..!");
   } catch (error) {
     res.status(400).send("server error", error);
   }
@@ -184,10 +184,10 @@ app.patch("/tasks/:id", async (req, res) => {
 app.delete("/tasks/:id", async (req, res) => {
   try {
     const tasks = await Task.findByIdAndDelete(req.params.id);
-    res.send("task deleted successfully..!");
     if (!tasks) {
       return res.status(404).send("task not found");
     }
+    res.send(tasks);
   } catch (err) {
     res.status(400).send("server or validation error", err);
   }

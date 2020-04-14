@@ -76,11 +76,16 @@ router.patch("/users/:id", async (req, res) => {
   }
 
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    /* [pass req.body] it update dynamically for new check docs */
+    /*  //findByIdAndUpdate method byPass the mongoose 
+
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {new: true,runValidators: true,});
+    [pass req.body] it update dynamically for new check docs */
+
+    //traditional way to update
+    const user = await User.findById(req.params.id);
+    update.forEach((data) => (user[data] = req.body[data])); //it's update users
+    await user.save(); //save users
+
     if (!user) {
       //for if no user
       return res.status(404).send("user not found ");

@@ -71,17 +71,19 @@ router.patch("/tasks/:id", async (req, res) => {
   }
 
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true,});
+    //used traditional ways update
+    const task = await Task.findById(req.params.id);
+    updates.forEach((update) => (task[update] = req.body[update]));
+    await task.save();
+
     if (!task) {
       //if task not found
       return res.status(404).send("task not found");
     }
     res.send(task); //if request go well
   } catch (err) {
-    res.status(400).send("server or validations error", err); //server error
+    res.status(400).send("server or validations error"); //server error
   }
 });
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("../models/user");
 const router = new express.Router();
+const auth = require("../middleware/auth");
 
 /*<==================== NOTES =====================>*/
 
@@ -38,13 +39,14 @@ router.post("/users/login", async (req, res) => {
 });
 
 //mongoose code for find users list
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(500).send(err);
-  }
+router.get("/users/me", auth, async (req, res) => {
+  res.send(req.user);
+  // try {
+  //   const users = await User.find({});
+  //   res.send(users);
+  // } catch (error) {
+  //   res.status(500).send(err);
+  // }
 
   // User.find({}).then((result) => {
   //     res.send(result);

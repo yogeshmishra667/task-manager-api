@@ -37,6 +37,34 @@ router.post("/users/login", async (req, res) => {
     res.status(400).send();
   }
 });
+//user ⏪ logout
+router.post("/users/logout", auth, async (req, res) => {
+  try {
+    console.log(auth);
+    //console.log(req.user);
+    console.log(req.user.tokens);
+    req.user.tokens = req.user.tokens.filter((token) => {
+      console.log(token.token);
+      return token.token !== req.token;
+    });
+    await req.user.save();
+    res.send("users logout");
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
+//logout all ♻ users
+router.post("/users/logoutAll", auth, async (req, res) => {
+  try {
+    //console.log(req.user);
+    req.user.tokens = [];
+    await req.user.save();
+    res.send("all users logout");
+  } catch (error) {
+    res.status(500).send();
+  }
+});
 
 //mongoose code for find users list
 router.get("/users/me", auth, async (req, res) => {

@@ -25,5 +25,5 @@ app.use(userRouter); //for users router
 app.use(taskRouter); //for tasks router
 
 app.listen(port, () => {
-  console.log(`🚀express server run on port ${port}`);
+  console.log(`express server run on port ${port}`);
 });

@@ -14,6 +14,7 @@ const auth = async (req, res, next) => {
       throw new Error();
       //error catch by catch function
     }
+    req.token = token; //for logout
     req.user = user; //for pass user models
     next();
   } catch (error) {

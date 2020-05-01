@@ -32,7 +32,7 @@ router.post("/users/login", async (req, res) => {
       req.body.password
     );
     const token = await user.generateAuthToken(); //for jwt token
-    res.send({ user, token }); //add on database
+    res.send({ user: user.getPublicData(), token }); //add on database //getPublicData hide private data
   } catch (err) {
     res.status(400).send();
   }
@@ -40,11 +40,8 @@ router.post("/users/login", async (req, res) => {
 //user ⏪ logout
 router.post("/users/logout", auth, async (req, res) => {
   try {
-    console.log(auth);
-    //console.log(req.user);
-    console.log(req.user.tokens);
     req.user.tokens = req.user.tokens.filter((token) => {
-      console.log(token.token);
+      // console.log(token.token);
       return token.token !== req.token;
     });
     await req.user.save();
@@ -69,48 +66,29 @@ router.post("/users/logoutAll", auth, async (req, res) => {
 //mongoose code for find users list
 router.get("/users/me", auth, async (req, res) => {
   res.send(req.user);
-  // try {
-  //   const users = await User.find({});
-  //   res.send(users);
-  // } catch (error) {
-  //   res.status(500).send(err);
-  // }
-
-  // User.find({}).then((result) => {
-  //     res.send(result);
-  //   }).catch((err) => {
-  //     res.status(500).send(err);
-  //   });
 });
 
 //mongoose code for find specific users
+//no need this one same work 👆 get request
 
-router.get("/users/:id", async (req, res) => {
-  /* id ==> provide by express for access dynamic route parameters*/
-  const _id = req.params.id;
-  try {
-    const user = await User.findById(_id);
-    /* mongodb Query doesn't considered failure if don't get any result back
-// that's means if user is not found mongodb is not provide error */
-    if (!user) {
-      res.status(404).send();
-    }
-    res.send(user);
-  } catch (err) {
-    res.status(500).send(err);
-  }
+// router.get("/users/:id", async (req, res) => {
+//   /* id ==> provide by express for access dynamic route parameters*/
+//   const _id = req.params.id;
+//   try {
+//     const user = await User.findById(_id);
+//     /* mongodb Query doesn't considered failure if don't get any result back
+// // that's means if user is not found mongodb is not provide error */
+//     if (!user) {
+//       res.status(404).send();
+//     }
+//     res.send(user);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
 
-  // User.findById(_id).then((user) => {
-  //     if (!user) {
-  //       return res.status(404).send();
-  //     }
-  //     res.send(user);
-  //   }).catch((err) => {
-  //     res.status(500).send(err);
-  //   });
-});
+// });
 //for update users
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/me", auth, async (req, res) => {
   const update = Object.keys(req.body); //return array of the given object
   const allowedUpdate = ["name", "email", "age", "password"];
   const isValidOperation = update.every((user) => allowedUpdate.includes(user));
@@ -126,27 +104,23 @@ router.patch("/users/:id", async (req, res) => {
     [pass req.body] it update dynamically for new check docs */
 
     //traditional way to update
-    const user = await User.findById(req.params.id);
-    update.forEach((data) => (user[data] = req.body[data])); //it's update users
-    await user.save(); //save users
+    //const user = await User.findById(req.user._id);
 
-    if (!user) {
-      //for if no user
-      return res.status(404).send("user not found ");
-    }
-    res.send(user); //if request go well
+    update.forEach((data) => (req.user[data] = req.body[data])); //it's update users
+    await req.user.save(); //save users
+
+    res.send(req.user); //if request go well
   } catch (err) {
     res.status(400).send("server or validation error ⚠");
   }
 });
 //for delete users
-router.delete("/users/:id", async (req, res) => {
+// change id to me because user can delete only own profile
+router.delete("/users/me", auth, async (req, res) => {
   try {
-    const users = await User.findByIdAndDelete(req.params.id);
-    if (!users) {
-      return res.status(404).send("user not found");
-    }
-    res.send("user deleted successfully..!");
+    //no need id for delete user because auth also take user id
+    await req.user.remove();
+    return res.status(200).send(req.user);
   } catch (error) {
     res.status(400).send("server error", error);
   }

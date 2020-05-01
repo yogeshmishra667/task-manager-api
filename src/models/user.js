@@ -45,6 +45,15 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
+//for hide private data only show public data 🔽
+userSchema.methods.getPublicData = function () {
+  const user = this;
+  const userObject = user.toObject(); //it return object raw data
+  delete userObject.password;
+  delete userObject.tokens; //it delete tokens models
+
+  return userObject;
+};
 //fot auth JWT
 userSchema.methods.generateAuthToken = async function () {
   const user = this;

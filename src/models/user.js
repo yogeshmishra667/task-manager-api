@@ -45,6 +45,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
+// for virtually store it's not store in database
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 //for hide private data only show public data 🔽
 userSchema.methods.getPublicData = function () {
   const user = this;
@@ -91,20 +98,5 @@ userSchema.pre("save", async function (next) {
 
 const User = mongoose.model("User", userSchema);
 /* put complete models object in userSchema */
-
-// const me = new User({
-//   name: "yogesh",
-//   age: 20,
-//   email: "yogeshmishra667@gmail.com   ",
-//   password: "mishrayogi",
-// });
-
-// me.save()
-//   .then(() => {
-//     console.log(me);
-//   })
-//   .catch((err) => {
-//     console.log("error", err);
-//   });
 
 module.exports = User;

@@ -1,26 +1,22 @@
 const express = require("express");
 const Task = require("../models/task");
 const router = new express.Router();
+const auth = require("../middleware/auth");
 
-/*<==================== NOTES =====================>*/
+/*<==================== TASKS =====================>*/
 
-/*when you work at index.js (directly) you are use [app.get,post] but in this 
-file you are used septate route file so you used [Router.get,post] */
-
-router.post("/tasks", async (req, res) => {
-  const task = new Task(req.body);
+router.post("/tasks", auth, async (req, res) => {
+  //const task = new Task(req.body); //similar 🔻
+  const task = new Task({
+    ...req.body, //it copy all the req.body data
+    owner: req.user._id, //added owner [user id] field in task model
+  });
   try {
     const result = await task.save();
     res.status(201).send(result);
   } catch (err) {
     res.status(400).send(err);
   }
-
-  // task.save().then((result) => {
-  //     res.status(201).send(result);
-  //   }).catch((err) => {
-  //     res.status(400).send(err);
-  //   });
 });
 //fetch tasks list
 router.get("/tasks", async (req, res) => {
@@ -30,12 +26,6 @@ router.get("/tasks", async (req, res) => {
   } catch (err) {
     res.status(500).send(err);
   }
-
-  // Task.find({}).then((task) => {
-  //     res.send(task);
-  //   }).catch((err) => {
-  //     res.status(500).send(err);
-  //   });
 });
 //fetch individual tasks
 router.get("/tasks/:id", async (req, res) => {
@@ -49,15 +39,6 @@ router.get("/tasks/:id", async (req, res) => {
   } catch (err) {
     res.status(500).send(err);
   }
-
-  // Task.findById(_id).then((task) => {
-  //     if (!task) {
-  //       res.status(404).send();
-  //     }
-  //     res.send(task);
-  //   }).catch((err) => {
-  //     res.status(500).send(err);
-  //   });
 });
 
 router.patch("/tasks/:id", async (req, res) => {

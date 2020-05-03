@@ -19,19 +19,20 @@ router.post("/tasks", auth, async (req, res) => {
   }
 });
 //fetch tasks list
-router.get("/tasks", async (req, res) => {
+router.get("/tasks", auth, async (req, res) => {
   try {
-    const task = await Task.find({});
+    const task = await Task.find({ owner: req.user._id });
     res.send(task);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 //fetch individual tasks
-router.get("/tasks/:id", async (req, res) => {
+router.get("/tasks/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
-    const task = await Task.findById(_id);
+    // const task = await Task.findById(_id);
+    const task = await Task.findOne({ _id, owner: req.user._id }); //if user logged in then only fetch tasks
     if (!task) {
       return res.status(404).send();
     }
@@ -41,7 +42,7 @@ router.get("/tasks/:id", async (req, res) => {
   }
 });
 
-router.patch("/tasks/:id", async (req, res) => {
+router.patch("/tasks/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body); //return array of the given object
   const allowedUpdate = ["description", "completed"];
   const isValidOperation = updates.every((task) =>
@@ -54,23 +55,33 @@ router.patch("/tasks/:id", async (req, res) => {
   try {
     // const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true,});
     //used traditional ways update
-    const task = await Task.findById(req.params.id);
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
 
+    //const task = await Task.findById(req.params.id); //without auth
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    }); //with auth
     if (!task) {
       //if task not found
       return res.status(404).send("task not found");
     }
+
+    updates.forEach((update) => (task[update] = req.body[update]));
+    await task.save();
+
     res.send(task); //if request go well
   } catch (err) {
     res.status(400).send("server or validations error"); //server error
   }
 });
 
-router.delete("/tasks/:id", async (req, res) => {
+router.delete("/tasks/:id", auth, async (req, res) => {
   try {
-    const tasks = await Task.findByIdAndDelete(req.params.id);
+    //const tasks = await Task.findByIdAndDelete(req.params.id); //without auth
+    const tasks = await Task.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
     if (!tasks) {
       return res.status(404).send("task not found");
     }

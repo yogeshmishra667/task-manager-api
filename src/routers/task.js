@@ -18,14 +18,26 @@ router.post("/tasks", auth, async (req, res) => {
     res.status(400).send(err);
   }
 });
-//fetch tasks list    // GET /tasks?completed=true
-// GET /tasks?limit=10&skip=10 that means limit=10 show first 10 task and skip=10 skip first 10 document
+//fetch tasks list
+// FILTER --> GET /tasks?completed=true
+// PAGINATION --> GET /tasks?limit=10&skip=10 that means limit=10 show first 10 task and skip=10 skip first 10
+// SORT ---> GET /tasks?sortBy=createdAt:desc
+
 router.get("/tasks", auth, async (req, res) => {
   const match = {};
+  const sort = {};
+
+  //for filtering
   if (req.query.completed) {
     match.completed = req.query.completed === "true";
     //match.completed want to string true not boolean ⏫
     //req.query.completed(string) === 'string' so match.completed(string)
+  }
+
+  //for sorting
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(":");
+    sort[parts[0]] = parts[1] === "desc" ? -1 : 1; //desc -1 && asc 1
   }
 
   try {
@@ -36,9 +48,10 @@ router.get("/tasks", auth, async (req, res) => {
         match: match,
         options: {
           // options use for pagination and sort data
-          limit: parseInt(req.query.limit),
+          limit: parseInt(req.query.limit), //parseInt convert string to number
           skip: parseInt(req.query.skip),
-        }, //parseInt convert string to number
+          sort: sort, //check NOTES --:1 🔻
+        },
       })
       .execPopulate();
     res.send(req.user.tasks);
@@ -111,3 +124,6 @@ router.delete("/tasks/:id", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+/* ================================== NOTES =================================== */
+/* 1 --: now there is the chance might want asc or desc also chance don't specify sortBy at all so we can't any info provide in options object  tips --> like filter crete empty object and use if condition*/

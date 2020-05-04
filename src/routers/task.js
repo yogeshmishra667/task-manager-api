@@ -19,6 +19,7 @@ router.post("/tasks", auth, async (req, res) => {
   }
 });
 //fetch tasks list    // GET /tasks?completed=true
+// GET /tasks?limit=10&skip=10 that means limit=10 show first 10 task and skip=10 skip first 10 document
 router.get("/tasks", auth, async (req, res) => {
   const match = {};
   if (req.query.completed) {
@@ -29,7 +30,17 @@ router.get("/tasks", auth, async (req, res) => {
 
   try {
     //const task = await Task.find({ owner: req.user._id });  //optional way
-    await req.user.populate({ path: "tasks", match: match }).execPopulate();
+    await req.user
+      .populate({
+        path: "tasks",
+        match: match,
+        options: {
+          // options use for pagination and sort data
+          limit: parseInt(req.query.limit),
+          skip: parseInt(req.query.skip),
+        }, //parseInt convert string to number
+      })
+      .execPopulate();
     res.send(req.user.tasks);
   } catch (err) {
     res.status(500).send(err);

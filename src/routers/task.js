@@ -18,11 +18,19 @@ router.post("/tasks", auth, async (req, res) => {
     res.status(400).send(err);
   }
 });
-//fetch tasks list
+//fetch tasks list    // GET /tasks?completed=true
 router.get("/tasks", auth, async (req, res) => {
+  const match = {};
+  if (req.query.completed) {
+    match.completed = req.query.completed === "true";
+    //match.completed want to string true not boolean ⏫
+    //req.query.completed(string) === 'string' so match.completed(string)
+  }
+
   try {
-    const task = await Task.find({ owner: req.user._id });
-    res.send(task);
+    //const task = await Task.find({ owner: req.user._id });  //optional way
+    await req.user.populate({ path: "tasks", match: match }).execPopulate();
+    res.send(req.user.tasks);
   } catch (err) {
     res.status(500).send(err);
   }

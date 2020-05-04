@@ -5,48 +5,53 @@ const jwt = require("jsonwebtoken");
 
 const Task = require("../models/task"); //for delete user tasks
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  age: {
-    type: Number,
-    default: 0,
-    validate(value) {
-      if (value < 0) {
-        throw new Error("age must be positive number");
-      }
-    },
-  },
-  email: {
-    type: String,
-    unique: true,
-    trim: true,
-    uppercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("email is not valid");
-      }
-    },
-  },
-  password: {
-    type: String,
-    trim: true,
-    minlength: 7,
-    validate(value) {
-      if (value.includes("password")) {
-        throw new Error("password doesn't enter whose easily guess ⚠");
-      }
-    },
-  },
-  //for add auth jwt token in database
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    age: {
+      type: Number,
+      default: 0,
+      validate(value) {
+        if (value < 0) {
+          throw new Error("age must be positive number");
+        }
       },
     },
-  ],
-});
+    email: {
+      type: String,
+      unique: true,
+      trim: true,
+      uppercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("email is not valid");
+        }
+      },
+    },
+    password: {
+      type: String,
+      trim: true,
+      minlength: 7,
+      validate(value) {
+        if (value.includes("password")) {
+          throw new Error("password doesn't enter whose easily guess ⚠");
+        }
+      },
+    },
+    //for add auth jwt token in database
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true, // for enable time and date
+  }
+);
 // for virtually store it's not store in database
 userSchema.virtual("tasks", {
   ref: "Task",

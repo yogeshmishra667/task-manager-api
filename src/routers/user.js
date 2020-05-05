@@ -1,14 +1,76 @@
-const express = require("express");
-const User = require("../models/user");
+const express = require('express');
+const User = require('../models/user');
 const router = new express.Router();
-const auth = require("../middleware/auth");
+const auth = require('../middleware/auth');
+const multer = require('multer');
 
 /*<==================== NOTES =====================>*/
 
 /*when you work at index.js (directly) you are use [app.get,post] but in this 
 file you are used septate route file so you used [Router.get,post] */
 
-router.post("/users", async (req, res) => {
+//upload images 🤞
+const upload = multer({
+  //dest: 'images',
+  limits: { fileSize: 1000000 },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      // You can always pass an error if something goes wrong:
+      cb(new Error('Please upload images file'));
+    }
+    // To accept the file pass `true`, like so:
+    cb(null, true);
+  },
+});
+router.post(
+  '/users/me/avatar',
+  auth,
+  upload.single('avatar'),
+  async (req, res) => {
+    req.user.avatar = req.file.buffer; //file contain all file data
+    await req.user.save(); //for save images in database
+    console.log(req.file);
+    res.send('images upload successfully');
+  },
+  (error, req, res, next) => {
+    //express understand this middleware for error handling
+    res.status(400).send({ error: error.message });
+  }
+);
+
+//delete images
+router.delete(
+  '/users/me/avatar',
+  auth,
+  async (req, res) => {
+    req.user.avatar = undefined;
+    await req.user.save();
+    res.send('images deleted successfully');
+  },
+  (error, req, res, next) => {
+    //express understand this middleware for error handling
+    res.status(400).send({ error: error.message });
+  }
+);
+
+//fetch images for user
+//http://localhost:3000/users/5eafed5c429cb83c787879f4/avatar see on browser
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user || !user.avatar) {
+      throw new Error();
+    }
+
+    res.set('Content-Type', 'image/jpg');
+    res.send(user.avatar);
+  } catch (e) {
+    res.status(404).send();
+  }
+});
+
+router.post('/users', async (req, res) => {
   //console.log(req.body);
   const user = new User(req.body);
   try {
@@ -25,7 +87,7 @@ router.post("/users", async (req, res) => {
   //   });
 });
 
-router.post("/users/login", async (req, res) => {
+router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findOneCredentials(
       req.body.email,
@@ -38,33 +100,33 @@ router.post("/users/login", async (req, res) => {
   }
 });
 //user ⏪ logout
-router.post("/users/logout", auth, async (req, res) => {
+router.post('/users/logout', auth, async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter((token) => {
       // console.log(token.token);
       return token.token !== req.token;
     });
     await req.user.save();
-    res.send("users logout");
+    res.send('users logout');
   } catch (error) {
     res.status(500).send();
   }
 });
 
 //logout all ♻ users
-router.post("/users/logoutAll", auth, async (req, res) => {
+router.post('/users/logoutAll', auth, async (req, res) => {
   try {
     //console.log(req.user);
     req.user.tokens = [];
     await req.user.save();
-    res.send("all users logout");
+    res.send('all users logout');
   } catch (error) {
     res.status(500).send();
   }
 });
 
 //mongoose code for find users list
-router.get("/users/me", auth, async (req, res) => {
+router.get('/users/me', auth, async (req, res) => {
   res.send(req.user);
 });
 
@@ -88,13 +150,13 @@ router.get("/users/me", auth, async (req, res) => {
 
 // });
 //for update users
-router.patch("/users/me", auth, async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
   const update = Object.keys(req.body); //return array of the given object
-  const allowedUpdate = ["name", "email", "age", "password"];
+  const allowedUpdate = ['name', 'email', 'age', 'password'];
   const isValidOperation = update.every((user) => allowedUpdate.includes(user));
   /* every() check every value of function and include() given value include or not */
   if (!isValidOperation) {
-    return res.status(400).send("entered invalid information 👎");
+    return res.status(400).send('entered invalid information 👎');
   }
 
   try {
@@ -111,18 +173,18 @@ router.patch("/users/me", auth, async (req, res) => {
 
     res.send(req.user); //if request go well
   } catch (err) {
-    res.status(400).send("server or validation error ⚠");
+    res.status(400).send('server or validation error ⚠');
   }
 });
 //for delete users
 // change id to me because user can delete only own profile
-router.delete("/users/me", auth, async (req, res) => {
+router.delete('/users/me', auth, async (req, res) => {
   try {
     //no need id for delete user because auth also take user id
     await req.user.remove();
     return res.status(200).send(req.user);
   } catch (error) {
-    res.status(400).send("server error", error);
+    res.status(400).send('server error', error);
   }
 });
 

@@ -63,7 +63,8 @@ userSchema.virtual('tasks', {
 });
 
 //for hide private data only show public data 🔽
-userSchema.methods.getPublicData = function () {
+userSchema.methods.toJSON = function () {
+  // when we pass res.send express call BTS json.stringify
   const user = this;
   const userObject = user.toObject(); //it return object raw data
   delete userObject.password;

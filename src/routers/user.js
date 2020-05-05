@@ -4,7 +4,7 @@ const sharp = require('sharp');
 const router = new express.Router();
 const auth = require('../middleware/auth');
 const multer = require('multer');
-
+const { sendWelcomeEmail, cancelWelcomeEmail } = require('../emails/account');
 /*<==================== NOTES =====================>*/
 
 /*when you work at index.js (directly) you are use [app.get,post] but in this 
@@ -80,6 +80,7 @@ router.post('/users', async (req, res) => {
   const user = new User(req.body);
   try {
     await user.save(); /*in express doesn't want to return anything for async/await */
+    sendWelcomeEmail(user.email, user.name);
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (err) {
@@ -99,7 +100,7 @@ router.post('/users/login', async (req, res) => {
       req.body.password
     );
     const token = await user.generateAuthToken(); //for jwt token
-    res.send({ user: user.getPublicData(), token }); //add on database //getPublicData hide private data
+    res.send({ user, token }); //add on database //getPublicData hide private data
   } catch (err) {
     res.status(400).send();
   }
@@ -187,6 +188,7 @@ router.delete('/users/me', auth, async (req, res) => {
   try {
     //no need id for delete user because auth also take user id
     await req.user.remove();
+    cancelWelcomeEmail(req.user.email, req.user.name);
     return res.status(200).send(req.user);
   } catch (error) {
     res.status(400).send('server error', error);

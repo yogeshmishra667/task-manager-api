@@ -75,7 +75,7 @@ userSchema.methods.toJSON = function () {
 //fot auth JWT
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, 'yogeshmishra');
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
   user.tokens = user.tokens.concat({ token }); //add token in tokens
   await user.save(); //save in database
   return token;

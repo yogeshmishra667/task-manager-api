@@ -16,7 +16,7 @@ const cancelWelcomeEmail = (email, name) => {
     to: email,
     from: 'yogijs667@gmail.com',
     subject: 'Sorry to see you go!',
-    text: `Goodbye, ${name}. I hope to see you back sometime soon.`,
+    text: `Goodbye, ${name}. I hope to see you back soon.`,
   });
 };
 

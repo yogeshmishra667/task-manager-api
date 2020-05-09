@@ -34,7 +34,7 @@ router.post(
       .toBuffer();
     req.user.avatar = buffer;
     await req.user.save(); //for save images in database
-    console.log(req.file);
+    //console.log(req.file);
     res.send('images upload successfully');
   },
   (error, req, res, next) => {
@@ -100,7 +100,7 @@ router.post('/users/login', async (req, res) => {
       req.body.password
     );
     const token = await user.generateAuthToken(); //for jwt token
-    res.send({ user, token }); //add on database //getPublicData hide private data
+    res.status(201).send({ user, token }); //add on database //getPublicData hide private data
   } catch (err) {
     res.status(400).send();
   }
